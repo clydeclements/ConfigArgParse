@@ -682,9 +682,17 @@ class ArgumentParser(argparse.ArgumentParser):
                            "'false', 'yes', or 'no'" % (key, value))
         elif isinstance(value, list):
             if action is None or isinstance(action, argparse._AppendAction):
-                for list_elem in value:
-                    args.append( command_line_key )
-                    args.append( str(list_elem) )
+                if (action.nargs in ('+', '*')) or \
+                        (isinstance(action.nargs, int) and action.nargs > 1):
+                    # value should be a list of lists
+                    for append_elem in value:
+                        args.append( command_line_key )
+                        for list_elem in append_elem:
+                            args.append( str(list_elem) )
+                else:
+                    for list_elem in value:
+                        args.append( command_line_key )
+                        args.append( str(list_elem) )
             elif (isinstance(action, argparse._StoreAction) and action.nargs in ('+', '*')) or (
                 isinstance(action.nargs, int) and action.nargs > 1):
                 args.append( command_line_key )
